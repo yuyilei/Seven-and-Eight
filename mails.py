@@ -7,6 +7,13 @@ from celery import Celery
 from celery.schedules import crontab
 from flask import Flask
 
+"""
+要求：
+理解每行代码的意思，实现定时发送邮件的功能!!
+时间:
+一周
+"""
+
 app = Flask(__name__)
 app.config['MAIL_SERVER'] = 'smtp.qq.com'
 app.config['MAIL_PORT'] = 25
@@ -58,7 +65,7 @@ def send_mail2(to, subject, **kwargs):
 
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-	# Calls update_ip every 60 seconds.
+	# Calls send_async_email  every 10 seconds.
 	sender.add_periodic_task(10.0,send_async_email.s(msg_dict2('XXX@qq.com',' 一封邮件')))
 
 
