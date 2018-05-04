@@ -1,0 +1,351 @@
+swagger: "2.0"
+
+info:
+  version: 1.0.0
+  title: MusicRunning Document
+  description: MusicRunning API Document
+
+schemes:
+  - https
+host: simple.api
+basePath: /api
+
+
+paths:
+  /login/:
+    post:
+      summary: 用户登录
+      description: login
+      parameters: 
+      - name: logininfo
+        in: body
+        description: 登录所需用户名密码
+        required: true
+        schema:
+          required: 
+            - username
+            - password
+          properties:
+            password:
+              type: string
+            username:
+              type: string
+      responses:
+        200:
+          description: 登录成功
+          schema:
+            required: 
+              - token
+            properties:
+              token:
+                type: string
+        401:
+          description: 密码错误 or 用户不存在
+          
+          
+  /user/{uid}/friends/:
+    get:
+      summary: 获取用户的好友
+      parameters: 
+        - in: header
+          name: token
+          description: 标示用户身份
+          required: true
+          type: string
+        - in: path
+          name: uid
+          required: true
+          type: integer
+      responses:
+        200:
+          description: 用户好友列表
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+        403:
+          description: token验证错误
+          
+  /user/{uid}/:
+    get:
+      summary: 获取某一用户的信息
+      parameters: 
+        - in: header
+          name: token
+          description: 验证用户身份
+          required: true
+          type: string
+        - in: path
+          name: uid
+          description: 用户ID
+          required: true
+          type: integer
+      responses:
+        200:
+          description: 成功
+          schema:
+            $ref: '#/definitions/UserInfo'
+        403:
+          description: token验证错误
+        404:
+          description: 用户不存在 
+            
+    
+  /user/{uid}/info/:
+    post:
+      summary: 修改某一用户的信息
+      parameters: 
+        - in: header
+          name: token
+          description: 验证用户身份
+          required: true
+          type: string
+        - in: path
+          name: uid
+          description: 用户ID
+          required: true
+          type: integer
+        - in: body
+          name: info
+          schema:
+            $ref: '#/definitions/UserInfo'
+          
+      responses:
+        200:
+          description: 用户信息修改成功
+        403:
+          description: token验证错误，不能修改 
+          
+              
+  /user/{uid}/friend/:
+    post:
+      summary: 添加用户的好友
+      parameters: 
+        - in: header
+          name: token
+          description: 标示用户身份
+          required: true
+          type: string
+        - in: path
+          name: uid
+          required: true
+          type: integer
+        - in: body
+          name: friend
+          schema:
+            $ref: '#/definitions/User'
+            
+      responses:
+        200:
+          description: 添加好友成功
+          schema:
+            required: 
+              - msg
+            properties:
+              msg:
+                type: string
+            
+        403:
+          description: token验证错误
+            
+  
+  /user/{uid}/around/: 
+    get:
+      summary: 获取某一时刻用户身边人
+      parameters:
+        - in: header
+          name: token
+          description: 标示用户身份的token
+          required: true
+          type: string
+        - in: path
+          name: uid 
+          required: true
+          description: 用户ID
+          type: integer
+      responses:
+        200:
+          description: 用户周围的人的列表
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+        403:
+          description: token 验证错误 
+  
+  /user/distance/:
+    post:
+      summary: 记录用户跑步的里程数
+      parameters: 
+        - in: header
+          name: token
+          description: 标示用户信息的token
+          required: true
+          type: string
+        - in: body
+          name: distanceinfo
+          description: 用户跑步的距离
+          required: true
+          schema:
+            required:
+              - distance
+            properties:
+              distance:
+                type: integer
+      responses:
+        200:
+          description: 记录用户跑步距离成功
+        403:
+          description: token验证错误，不能记录
+          
+    
+  /user/{uid}/distance/:
+    get:
+      summary: 获取用户跑步的里程数
+      parameters:
+        - in: path
+          name: uid
+          description: 用户I
+          type: integer
+          required: true
+      responses:
+        200:
+          description: 获取用户跑步距离成功
+          schema:
+            required: 
+              - distance
+            properties:
+              distance:
+                description: 用户跑步里程数
+                type: integer
+                
+        404:
+          description: 用户不存在
+          
+    
+          
+    
+  /circle/{cid}/people/:
+    get:
+      summary: 获取某一圈子里的人的信息 (佑铭，南湖，高职)
+      parameters: 
+        - in: path 
+          name: cid 
+          description: 圈子的ID
+          required: true
+          type: integer
+      responses:
+        200: 
+          description: 圈子的信息
+          schema:
+            type: array
+            items:
+                $ref: '#/definitions/UserRunInfo'
+          
+        
+          
+          
+  /location/:
+    get:
+      summary: 获取用户的位置信息
+      parameters: 
+        - in: header
+          name: token
+          description:  标识身份的Token
+          required: true
+          type: string
+      responses:
+        200:
+          description: location info 
+          schema:
+            required: 
+              - x
+              - y
+            properties:
+              x:
+                type: string 
+              y:
+                type: string 
+                
+    
+          
+definitions:
+  User:
+    required: 
+      - uid
+      - username 
+      - profile
+      - avatar 
+    properties:
+      uid:
+        description: 用户ID
+        type: integer
+      username:
+        description: 用户名
+        type: string
+      profile:
+        description: 用户信息
+        type: string
+      avatar:
+        description: 用户头像URL
+        type: string
+        
+        
+  UserRunInfo:
+    required: 
+      - uid
+      - username
+      - x 
+      - y 
+      - speed
+      - step
+      - distance  
+    properties:
+      uid:
+        description: 用户ID
+        type: integer
+      username:
+        description: 用户名
+        type: string
+      x:
+        description: 用户位置信息
+        type: string
+      y:
+        description: 用户位置信息
+        type: string
+      speed:
+        description: 用户位置
+        type: string
+      step:
+        description: 用户步数
+        type: integer
+      distance:
+        description: 用户里程数
+        type: integer
+        
+  UserInfo:
+    required: 
+      - username
+      - avatar
+      - proflie
+      - uid 
+      - distance 
+    properties:
+      uid:
+        description: 用户ID
+        type: integer
+      username:
+        description: 用户名
+        type: string
+      avatar:
+        description: 头像
+        type: string
+      profile:
+        description: 用户简介
+        type: string
+      distance:
+        description: 用户跑步距离
+        type: integer
+        
+        
+
